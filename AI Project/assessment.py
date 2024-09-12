@@ -138,3 +138,9 @@ class QLearningMouse(Mouse):
         reward = self.calculate_reward(grid)
         self.update_q_table(state, action, reward, new_state)
 
+
+class Cat:
+    def __init__(self):
+        self.energy = 100
+        self.x = 0
+        self.y = 0
