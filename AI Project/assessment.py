@@ -56,3 +56,7 @@ class Mouse:
         self.x = 0
         self.y = 0
         self.carried_cheese = None
+
+    def move(self, direction, grid):
+        if self.energy <= 0:
+            return
