@@ -48,3 +48,11 @@ class MouseHole:
         if len(self.occupants) < 5:
             self.occupants.append(mouse)
 
+
+class Mouse:
+    def __init__(self, gender):
+        self.gender = gender
+        self.energy = 100
+        self.x = 0
+        self.y = 0
+        self.carried_cheese = None
