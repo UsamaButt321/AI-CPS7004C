@@ -60,3 +60,81 @@ class Mouse:
     def move(self, direction, grid):
         if self.energy <= 0:
             return
+        dx, dy = direction
+        new_x, new_y = grid.wrap_around(self.x + dx, self.y + dy)
+        if grid.get_entity(new_x, new_y) is None:
+            grid.remove_entity(self.x, self.y)  # Remove from old position
+            self.x, self.y = new_x, new_y
+            grid.place_entity(self, self.x, self.y)  # Place in new position
+            self.energy -= 5
+
+    def rest(self):
+        self.energy += 10
+        if self.energy > 100:
+            self.energy = 100
+
+    def action_to_direction(self, action):
+        directions = {
+            'up': (-1, 0),
+            'down': (1, 0),
+            'left': (0, -1),
+            'right': (0, 1)
+        }
+        return directions.get(action, (0, 0))  # Default to no movement if invalid action
+
+
+    def observe_state(self, grid):
+        return (self.x, self.y)
+
+    def calculate_reward(self, grid):
+        # Reward: +10 for finding cheese, -10 for encountering a cat, otherwise 0
+        entity = grid.get_entity(self.x, self.y)
+        if isinstance(entity, Cheese):
+            return 10
+        elif isinstance(entity, Cat):
+            return -10
+        else:
+            return 0
+
+
+class QLearningMouse(Mouse):
+    def __init__(self, gender):
+        super().__init__(gender)
+        self.q_table = {}  # Initialize Q-table
+        self.alpha = 0.1  # Learning rate
+        self.gamma = 0.9  # Discount factor
+        self.epsilon = 0.1  # Exploration factor
+
+    def choose_action(self, state):
+        if random.uniform(0, 1) < self.epsilon:
+            # Explore: choose a random action
+            return random.choice(['up', 'down', 'left', 'right', 'rest'])
+        else:
+            # Exploit: choose the best known action
+            if state in self.q_table:
+                return max(self.q_table[state], key=self.q_table[state].get)
+            else:
+                return random.choice(['up', 'down', 'left', 'right', 'rest'])
+
+    def update_q_table(self, state, action, reward, next_state):
+        if state not in self.q_table:
+            self.q_table[state] = {a: 0 for a in ['up', 'down', 'left', 'right', 'rest']}
+        best_future_q = max(self.q_table[next_state].values()) if next_state in self.q_table else 0
+        self.q_table[state][action] += self.alpha * (reward + self.gamma * best_future_q - self.q_table[state][action])
+
+    def act(self, grid):
+        state = self.observe_state(grid)
+        action = self.choose_action(state)
+
+        # Perform the chosen action
+        if action == 'rest':
+            self.rest()
+        else:
+            dx, dy = self.action_to_direction(action)
+            self.move((dx, dy), grid)
+
+        # Update Q-table
+        new_state = self.observe_state(grid)
+        reward = self.calculate_reward(grid)
+        self.update_q_table(state, action, reward, new_state)
+
