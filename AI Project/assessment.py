@@ -144,3 +144,20 @@ class Cat:
         self.energy = 100
         self.x = 0
         self.y = 0
+
+    def move(self, grid, target_x, target_y):
+        if self.energy <= 0:
+            return
+        dx = target_x - self.x
+        dy = target_y - self.y
+        if abs(dx) > abs(dy):
+            dx = 1 if dx > 0 else -1
+            dy = 0
+        else:
+            dy = 1 if dy > 0 else -1
+            dx = 0
+        new_x, new_y = grid.wrap_around(self.x + dx, self.y + dy)
+        grid.remove_entity(self.x, self.y)
+        self.x, self.y = new_x, new_y
+        grid.place_entity(self, self.x, self.y)
+        self.energy -= 5
