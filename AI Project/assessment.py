@@ -171,3 +171,22 @@ class AICat(Cat):
         super().__init__()
         self.decision_tree = self.build_decision_tree()
 
+    def build_decision_tree(self):
+        return {'energy': 50, 'distance': 3, 'action': ['play', 'attack']}
+
+    def decide_action(self, mouse_distance):
+        if self.energy < self.decision_tree['energy'] and mouse_distance <= self.decision_tree['distance']:
+            return 'play'
+        else:
+            return 'attack'
+
+    def act(self, mouse):
+        mouse_distance = self.calculate_distance(mouse)
+        action = self.decide_action(mouse_distance)
+        if action == 'play':
+            print(f"Cat is playing with mouse at ({mouse.x}, {mouse.y})")
+            mouse.energy -= 5
+        else:
+            print(f"Cat is attacking mouse at ({mouse.x}, {mouse.y})")
+            mouse.energy -= 20
+
