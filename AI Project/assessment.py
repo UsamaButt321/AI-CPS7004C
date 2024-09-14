@@ -190,3 +190,41 @@ class AICat(Cat):
             print(f"Cat is attacking mouse at ({mouse.x}, {mouse.y})")
             mouse.energy -= 20
 
+
+# Example usage of the Grid, Mouse, and Cat classes:
+if __name__ == "__main__":
+    # Initialize the grid and entities
+    grid = Grid(10)
+
+    # Place mouse holes on the grid
+    mouse_hole_1 = MouseHole(0, 0)
+    grid.place_entity(mouse_hole_1, 0, 0)
+
+    # Place cheese on the grid
+    cheese = Cheese(size='medium', x=4, y=4)
+    grid.place_entity(cheese, 4, 4)
+
+    # Initialize Q-learning mouse and AI cat
+    q_mouse = QLearningMouse(gender='male')
+    cat = AICat()
+
+    # Place the mouse and cat on the grid
+    grid.place_entity(q_mouse, 2, 2)
+    grid.place_entity(cat, 5, 5)
+
+    # Simulate actions
+    for step in range(10):
+        print(f"\n--- Simulation Step {step + 1} ---")
+
+        q_mouse.act(grid)  # Mouse acts based on Q-learning
+        cat.act(q_mouse)  # Cat decides whether to play or attack based on the decision tree
+
+        print(f"Mouse position: ({q_mouse.x}, {q_mouse.y}), Energy: {q_mouse.energy}")
+        print(f"Cat position: ({cat.x}, {cat.y}), Energy: {cat.energy}")
+
+        # Cheese degradation check
+        cheese.degrade()
+        print(f"Cheese at ({cheese.x}, {cheese.y}), Nutritional Value: {cheese.nutritional_value}")
+        if cheese.nutritional_value <= 0:
+            print("Cheese has been fully degraded.")
+            grid.remove_entity(cheese.x, cheese.y)
