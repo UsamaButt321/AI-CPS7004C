@@ -161,3 +161,13 @@ class Cat:
         self.x, self.y = new_x, new_y
         grid.place_entity(self, self.x, self.y)
         self.energy -= 5
+
+    def calculate_distance(self, mouse):
+        return abs(self.x - mouse.x) + abs(self.y - mouse.y)
+
+
+class AICat(Cat):
+    def __init__(self):
+        super().__init__()
+        self.decision_tree = self.build_decision_tree()
+
